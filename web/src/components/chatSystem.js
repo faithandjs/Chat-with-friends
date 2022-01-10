@@ -27,6 +27,7 @@ socket.on('foundFriend', ({friend, name}) => {
 
 socket.on('message', ({name, msg, friend}) => {
   setChat([...chat, {name, msg}])
+  //console.log(chat, name, msg)
   
 })
 //username modal
@@ -76,11 +77,12 @@ function sentMsg (e){
 function closeModalDm(){
   $('#dmModal').hide()
   $('.modal-backdrop').hide() 
-}
+} 
 function displayChat(){
-  console.log(chat)
-  chat.map(({name, msg}, index) =>{
-      return <div key={index}>{name}: <span>{msg}</span></div>
+   //console.log('>>>>',chat)
+   chat.forEach(({name, msg}, index) =>{
+    <div>hi</div>
+   //<div key={index}>{name}: <span>{msg}</span></div> 
   })
   }
 
@@ -170,7 +172,7 @@ function displayChat(){
                   <div className="modal-body">
                     <div>
                       <div className='dm'>
-                        {displayChat}
+                        {displayChat()}
                       </div>
                     </div>
                     <form className='chat-box' onSubmit={sentMsg}>

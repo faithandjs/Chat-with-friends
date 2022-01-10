@@ -1,10 +1,10 @@
 //import {BrowserRouter as Router, Route, Routes} from 'react-router-dom'
 import './App.css';
-import {ChatSystem} from './components/chatSystem'
+import {GetStarted} from './components/get-started'
 
 function App(){
   return (
-        <div><ChatSystem/></div>
+        <div><GetStarted/></div>
     
   );
 } 
