@@ -1,6 +1,5 @@
 import React, {useState, memo} from 'react'
 import io from 'socket.io-client'
-import $ from 'jquery'
 
 const socket = io('http://localhost:4000')
 
@@ -12,18 +11,45 @@ const [hello, setHello] = useState(false)
 const [name, setName] = useState('')
 const [msg, setMsg] = useState('')
 const [chat, setChat] = useState([])
+const [usersAvailable, setUsersAvailable] = useState([])
+const [myId, setMyId] = useState('')
 
 let username = name
-socket.on('message', ({name, msg}) => {
-    if (username == name ){
+socket.on('message', ({name, msg, y, w}) => { 
+    let color
+    if (w == myId ){
         let name = 'me'
-        setChat([...chat, {name, msg}])
+        color = 'blue'
+        setChat([...chat, {name, msg, color, w}])
     }else{
-        setChat([...chat, {name, msg}])
+        switch(y){
+            case 1:
+                color = 'red';
+                break;
+            case 2:
+                color = 'green';
+                break;
+            case 3:
+                color = 'orange';
+                break;
+            case 4:
+                color = 'brown';
+                break;
+            case 5:
+                color = 'purple';
+                break;
+        }
+        setChat([...chat, {name, msg, color, w}])
     }
-    
-    //console.log(chat, name, msg)
-  })
+})
+
+socket.on('my-id', id => {
+    setMyId(id)
+})
+
+socket.on('in-chat', (z) => {
+    setUsersAvailable(z)
+})
 
 function usernameInput(e){
     setName(e.target.value)
@@ -35,8 +61,6 @@ function usernameFormSubmitted (e){
     setDm(true) 
     setHello(true) 
     socket.emit('username', name); 
-    $('#usernameModal').hide()
-    $('.modal-backdrop').hide()
 }
 function typingMsg(e){
   setMsg(e.target.value)
@@ -44,16 +68,17 @@ function typingMsg(e){
 
 function sentMsg (e){
   e.preventDefault();
-  socket.emit('msgSent', {name, msg})
+  if (msg.trim() != ''){
+    socket.emit('msgSent', {name, msg, myId})
+}
   setMsg('')
 }
 
 function displayChat(){
-    console.log(chat)
-    return (
+    return ( 
         <div className='msg-area'>
         {chat.map((item,index) => (
-            <div key={index} className='text-box'>
+            <div key={index} className={ 'text-box ' + item.color + ' ' + item.w}>
                 <div className='sender'>{item.name}</div>
                 <div className='msg-content'>{item.msg}</div>
             </div>
@@ -62,20 +87,39 @@ function displayChat(){
     )
    }
 
+function lastItemTest(item, index){
+    if (index == usersAvailable.length - 1){
+        return item.charAt(0).toUpperCase() + item.slice(1) + '.'
+    }else{
+        return item.charAt(0).toUpperCase() + item.slice(1)  + ', '
+    }
+}
     return(
         <div className='messaging '>
         <div className='header'>
             <div className='heading'><p>Chat with friends</p></div>
-            {hello && <div className='hi-msg'><p>hi <span>{name}</span></p></div>}
-        </div>
+            {hello && (
+                <div className='extras'>
+                    <div className='hi-msg'><p>hi <span>{name}</span></p></div>
+                    <div className='in-chat-box'>
+                    <p>Online: </p>
+                    <div className='in-chat'><span>
+                        {usersAvailable.map((item, index) => (
+                        lastItemTest(item, index)
+                        ))}
+                        </span></div>
+                    </div> 
+                    </div>   
+            )}
+                    </div>
         <div className='msg-box'>
             {clickBtn && (
                 <div className='get-started container-fluid'>
-                    <div className='text'>
-                        <p>Welcome to Chat With Friends, you can send messages to your friends with this application.<br/>
-                        Get started by entering your name.</p>
-                    </div>
-                    <div><button className='get-started-btn' data-toggle="modal" data-target="#usernameModal">get started</button></div>
+                    <div className='text'>Enter your name</div>
+                    <form onSubmit={usernameFormSubmitted} >
+                        <input type='text' className='input'name='username' id='username' onChange={usernameInput}/>
+                        <input type='submit' className='btn'/>
+                    </form>
                 </div>
             )}
             {dm && (
@@ -87,29 +131,6 @@ function displayChat(){
                     </form>
                 </div>
             )}
-        </div>
-        
-
-
-
-        {/*enter username modal*/}
-        <div className="modal modal-box username-modal" tabIndex="-1" role="dialog" id='usernameModal'>
-            <div className="modal-dialog" role="document">
-                <div className="modal-content">
-                    <div className="modal-header">
-                        <p className="modal-title">Enter your name<br/></p>
-                      {<button type="button" className="close" data-dismiss="modal" aria-label="Close">
-                          <span aria-hidden="true">&times;</span>
-                      </button>}
-                    </div>
-                    <div className="modal-body">
-                        <form className='input-box' onSubmit={usernameFormSubmitted} >
-                            <input type='text' className='input'name='username' id='username' onChange={usernameInput}/>
-                            <input type='submit' className='btn'/>
-                        </form>
-                    </div>
-                </div>
-            </div>
         </div>
     </div>
 

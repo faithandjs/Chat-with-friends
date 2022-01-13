@@ -8,30 +8,26 @@ const io = require('socket.io')(http, {
 })
  
 const users = {};
-const savedChat = [{}];
-let sender, recievedMessage
-
+const nameColorPair ={}
+let w, x, y, z;
+z = Object.values(users);
+ 
 io.on('connection', socket => {
     socket.on('username', name => { 
-        users[name] = socket.id;
-        console.log(users)
-    })
+        users[socket.id] = name;
+        io.to(socket.id).emit('my-id', socket.id)
+        x = Math.floor((Math.random() * 5) + 1)
+        nameColorPair[socket.id] = x
+        z = Object.values(users);
+        io.emit('in-chat', z) 
+    }) 
 
-    //io.emit('settingChat', chat)
-
-/*
-    socket.on('friend', ({friend, name })=> {
-            if(users[friend] !== undefined){
-                io.to(users[name]).emit('foundFriend', {friend, name})
-            }else {
-                io.to(users[name]).emit('errMsg', `${friend} not found`)
-            } 
-    })
-*/
-
-    socket.on('msgSent', ({name, msg}) => {
-        console.log(name, msg)
-        io.emit('message', {name, msg})
+    socket.on('msgSent', ({name, msg, myId}) => {
+        y = nameColorPair[myId] 
+        w = myId
+        io.emit('message', {name, msg, y, w})
+        z = Object.values(users);
+        io.emit('in-chat', z) 
     })
 })
 
