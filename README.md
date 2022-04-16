@@ -1,5 +1,5 @@
 # Chat-with-friends
-This repo is a project made up a client side and a server-side. 
+This repo is a project made up a client-side and a server-side. 
 
 See a detailed README in their repositories: 
 
